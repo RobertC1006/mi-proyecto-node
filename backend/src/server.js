@@ -12,8 +12,8 @@ app.use(express.json());
 
 app.get('/', (req, res) => {
   res.send('¡Hola desde el backend!');
-});
+}); 
 
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en http://localhost:${PORT}`);
-}); 
+});  
