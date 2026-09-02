@@ -15,14 +15,17 @@ model Role {
   id          Int      @id @default(autoincrement())
   nombre      String   @unique
   descripcion String?
-  usuarios    Usuario[]
+  usuario    Usuario[]
+  activo Boolean @default(true)
 }
 model Sede {
  id       Int      @id @default(autoincrement())
 nombre   String   @unique
 direccion String
 created_at DateTime @default(now())
-Usuario    Usuario[]
+usuario    Usuario[]
+iventario   Inventario[]
+activo Boolean @default(true)
 }
 model Usuario{
   id          Int      @id @default(autoincrement())
@@ -35,6 +38,10 @@ model Usuario{
   sede        Sede? @relation(fields: [sede_id], references: [id])
   created_at    DateTime @default(now())
   log         Log[] 
+  orden       Orden[]
+  pedidoVendedor Pedido[] @relation("VendedorPedido")
+  pedidoCliente Pedido[] @relation("ClientePedido")
+  activo Boolean @default(true)
 }
 model Log {
   id             Int      @id @default(autoincrement())
@@ -46,4 +53,104 @@ model Log {
   valor_anterior Json?
   valor_nuevo    Json?
   created_at     DateTime @default(now())
+  activo Boolean @default(true)
+}
+
+model Proveedor {
+ id    Int      @id @default(autoincrement())  
+ nombre String   @unique
+ telefono String
+ correo String
+ producto Producto[]
+ orden Orden[]
+ created_at DateTime @default(now())
+ activo Boolean @default(true)
+}
+
+model Categoria {
+ id          Int      @id @default(autoincrement())
+ nombre      String   @unique
+ descripcion String?
+ producto    Producto[]
+ created_at DateTime @default(now())
+ activo Boolean @default(true)
+}
+
+model Producto {
+ id          Int      @id @default(autoincrement())
+ nombre      String   @unique
+ proveedor_id Int
+ proveedor   Proveedor @relation(fields: [proveedor_id], references: [id])
+ categoria_id Int
+ categoria   Categoria @relation(fields: [categoria_id], references: [id])
+ inventario    Inventario[]
+ ordenDetalle OrdenDetalle[]
+ pedidoDetalle pedidoDetalle[]
+ created_at DateTime @default(now())
+ activo Boolean @default(true)
+}
+
+model Inventario {
+  id         Int      @id @default(autoincrement())
+  sede_id     Int
+  sede        Sede @relation(fields: [sede_id], references: [id])
+  producto_id Int
+  producto    Producto @relation(fields: [producto_id], references: [id])
+  cantidad    Int
+  created_at  DateTime @default(now())
+  activo Boolean @default(true)
+}
+
+model OrdenDetalle {
+id         Int      @id @default(autoincrement())
+orden     Orden @relation(fields: [orden_id], references: [id])
+orden_id Int
+producto_id Int
+producto    Producto @relation(fields: [producto_id], references: [id])
+cantidad    Int
+precioUnitario Decimal 
+created_at  DateTime @default(now())
+activo Boolean @default(true)
+
+}
+enum EstadoOrden {
+  PENDIENTE
+  EN_PROCESO
+  COMPLETADA
+  CANCELADA
+}
+model Orden {
+ id         Int      @id @default(autoincrement())
+ usuario_id  Int
+ usuario     Usuario @relation(fields: [usuario_id], references: [id])
+ proveedor_id Int
+ proveedor   Proveedor @relation(fields: [proveedor_id], references: [id])
+ estado      EstadoOrden @default(PENDIENTE)
+ total       Decimal
+ detalles     OrdenDetalle[]
+ created_at  DateTime @default(now())
+ activo Boolean @default(true)
+}
+model pedidoDetalle {
+ id         Int      @id @default(autoincrement())
+ pedido     Pedido @relation(fields: [pedido_id], references: [id])
+ pedido_id Int
+ producto_id Int
+ producto    Producto @relation(fields: [producto_id], references: [id])
+ cantidad    Int
+ precioUnitario Decimal 
+ created_at  DateTime @default(now())
+ activo Boolean @default(true)
+}
+model Pedido{
+id         Int      @id @default(autoincrement())
+vendedor_id   Int
+vendedor      Usuario @relation("VendedorPedido", fields: [vendedor_id], references: [id])
+cliente_id    Int
+cliente       Usuario @relation("ClientePedido", fields: [cliente_id], references: [id])
+estado      EstadoOrden @default(PENDIENTE)
+total       Decimal
+detalles     pedidoDetalle[]
+created_at  DateTime @default(now())
+activo Boolean @default(true)
 }
