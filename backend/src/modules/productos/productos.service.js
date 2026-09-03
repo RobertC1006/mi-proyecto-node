@@ -1,6 +1,6 @@
 import {prisma } from  "../../shared/prisma.js";
 
-export async function ListarProductos() {
+export async function listarProductos() {
 return prisma.producto.findMany({
         where: { activo: true},
         include: {categoria: true, proveedor: true}
@@ -16,18 +16,17 @@ export async function obtenerProducto(id){
 
 }
 
-export async function CrearProducto(datos){
+export async function crearProducto(datos){
     const {nombre,
            proveedor_id,
            categoria_id,} = datos; 
     return prisma.producto.create({
-        where: {id},
         data: {
             nombre, proveedor_id, categoria_id },
         });
 }
 
-export async function ActualizarProducto(id,datos){
+export async function actualizarProducto(id,datos){
 const {nombre,
            proveedor_id,
            categoria_id,} = datos; 
@@ -38,7 +37,7 @@ const {nombre,
    }
 })
 }
-export async function EliminarProducto(id){y
+export async function eliminarProducto(id){
     return prisma.producto.update({
         where: {id},
         data:  {activo:false}
