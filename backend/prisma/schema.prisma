@@ -59,6 +59,7 @@ model Log {
 model Proveedor {
  id    Int      @id @default(autoincrement())  
  nombre String   @unique
+ Nit    String   @unique
  telefono String
  correo String
  producto Producto[]

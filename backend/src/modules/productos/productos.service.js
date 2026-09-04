@@ -10,7 +10,7 @@ return prisma.producto.findMany({
 
 export async function obtenerProducto(id){
     return prisma.producto.findUnique({
-        where: { id},
+        where: { id,activo:true},
         include: { categoria: true, proveedor:true}
     })
 
@@ -31,7 +31,7 @@ const {nombre,
            proveedor_id,
            categoria_id,} = datos; 
     return prisma.producto.update({
-        where:{id},  
+        where:{id,activo:true},  
         data:{
     nombre,proveedor_id,categoria_id
    }
@@ -39,7 +39,7 @@ const {nombre,
 }
 export async function eliminarProducto(id){
     return prisma.producto.update({
-        where: {id},
+        where: {id,activo:true},
         data:  {activo:false}
    })
 }   

@@ -19,16 +19,28 @@ export async function crear(req,res){
 }
 
 export async function eliminar(req,res){
-    const datos = await eliminarProducto(Number(req.params.id));
-     if(!datos){
+   let datos;
+    try {
+   datos = await eliminarProducto(Number(req.params.id));
+   }
+   catch(error){
+     if(error.code === 'P2025'){
      return res.status(404).json({error: "Producto no encontrado"});
-    }
-    res.json(datos);
+    } 
+    else {throw error;}
+} 
+  res.json(datos);
 }
 export async function actualizar(req,res){
-    const datos = await actualizarProducto(Number(req.params.id),req.body);
-     if(!datos){
+   let datos;
+    try {
+     datos = await actualizarProducto(Number(req.params.id),req.body);
+   }
+   catch(error){
+     if(error.code === 'P2025'){
      return res.status(404).json({error: "Producto no encontrado"});
     }
+    else {throw error;}
+}
     res.json(datos);
 }

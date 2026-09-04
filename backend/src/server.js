@@ -1,10 +1,9 @@
 import express from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
 import productosrouter from "./modules/productos/productos.router.js" 
 
 
-dotenv.config();
+
 
 const app = express();
 const PORT = process.env.PORT || 3000;

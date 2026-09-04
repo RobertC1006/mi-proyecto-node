@@ -15,11 +15,9 @@ terminarlo rápido, es entender cada línea que se escribe.
 | Modelo de datos (`schema.prisma`) | Completo y migrado a la base de datos |
 | Base de datos PostgreSQL | Corriendo en Docker, migración `init` aplicada |
 | Cliente de Prisma (`src/shared/prisma.js`) | Hecho |
-| `productos.service.js` | 2 de 5 funciones (`ListarProductos`, `obtenerProducto`) |
-| `productos.controller.js` | Vacío |
-| `productos.router.js` | Vacío |
+| Módulo `productos` (service + controller + router) | **Completo** — CRUD probado de punta a punta con `curl` |
 | Resto de módulos (usuarios, sedes, inventario, ordenes, pedidos, proveedores) | Carpetas creadas, archivos vacíos |
-| `server.js` | Solo la ruta `GET /` de prueba, sin routers montados |
+| `server.js` | Router de `productos` montado en `/productos` |
 | Frontend | Scaffold de Vite sin modificar |
 
 ---
@@ -70,6 +68,12 @@ npx prisma generate        # genera el cliente en src/generated/prisma
 npm start                  # backend en http://localhost:3000
 cd ../frontend && npm run dev   # frontend en http://localhost:5173
 ```
+
+`npm start` corre `node --env-file=.env src/server.js`. El `--env-file` es obligatorio: los
+módulos (incluido `shared/prisma.js`) se ejecutan en cuanto se importan, así que las
+variables de entorno tienen que existir **antes** de que Node cargue cualquier `import` del
+archivo. Por eso `server.js` no usa el paquete `dotenv` — llamarlo con `dotenv.config()`
+dentro del archivo llega demasiado tarde, porque los `import` de arriba ya se ejecutaron.
 
 ---
 
@@ -149,26 +153,18 @@ curl -X POST http://localhost:3000/productos \
 
 ## Plan de trabajo
 
-### Ahora — completar `productos` de punta a punta
+### Hecho — `productos` de punta a punta
 
-Es el módulo piloto: una vez funcione entero, los demás son el mismo patrón repetido.
-
-1. Terminar `productos.service.js`: faltan `crearProducto`, `actualizarProducto`,
-   `eliminarProducto` (soft delete con `update` + `activo: false`).
-2. Escribir `productos.controller.js`: una función por operación, leyendo `req.params.id`
-   (convertir con `Number()`) y `req.body`, respondiendo con `res.json()` /
-   `res.status(201)` / `res.status(404)`.
-3. Escribir `productos.router.js`: `Router()` de Express, mapear `GET /`, `GET /:id`,
-   `POST /`, `PUT /:id`, `DELETE /:id`.
-4. Montarlo en `server.js` con `app.use('/productos', productosRouter)`.
-5. Probar el CRUD completo con `curl` o Thunder Client.
+Módulo piloto completo (service, controller, router, montado en `server.js`) y probado con
+`curl`: crear, listar, obtener, actualizar, eliminar (soft delete), y los 404 correctos
+cuando el `id` no existe. Este es el patrón a repetir en los módulos que siguen.
 
 > **Ojo con esto:** no se puede crear un `Producto` sin que existan antes un `Proveedor` y
 > una `Categoria`, porque `proveedor_id` y `categoria_id` son claves foráneas obligatorias.
 > Si intentas un POST con ids inexistentes, Postgres rechaza el insert. Crea primero un
 > proveedor y una categoría desde Prisma Studio para poder probar.
 
-### Después — replicar el patrón
+### Ahora — replicar el patrón
 
 Orden sugerido, de menos a más dependencias:
 
